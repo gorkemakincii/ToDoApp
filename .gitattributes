@@ -1,0 +1,6 @@
+# Force Unix line endings for all files on checkout
+* text=auto eol=lf
+
+# Windows-specific files can keep CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
