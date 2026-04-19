@@ -13,13 +13,13 @@ public class TodoService : ITodoService
         _repository = repository;
     }
 
-    public Task<IEnumerable<TodoItem>> GetAllAsync()
-        => _repository.GetAllAsync();
+    public async Task<IEnumerable<TodoResponseDto>> GetAllAsync()
+    {
+        var items = await _repository.GetAllAsync();
+        return items.Select(ToDto);
+    }
 
-    public Task<TodoItem?> GetByIdAsync(Guid id)
-        => _repository.GetByIdAsync(id);
-
-    public async Task<TodoItem> CreateAsync(CreateTodoDto dto)
+    public async Task<TodoResponseDto> CreateAsync(CreateTodoDto dto)
     {
         var item = new TodoItem
         {
@@ -29,10 +29,11 @@ public class TodoService : ITodoService
             IsCompleted = false,
             CreatedAt = DateTime.UtcNow
         };
-        return await _repository.CreateAsync(item);
+        var created = await _repository.CreateAsync(item);
+        return ToDto(created);
     }
 
-    public async Task<TodoItem?> UpdateAsync(Guid id, UpdateTodoDto dto)
+    public async Task<TodoResponseDto?> UpdateAsync(Guid id, UpdateTodoDto dto)
     {
         var item = new TodoItem
         {
@@ -41,9 +42,19 @@ public class TodoService : ITodoService
             Description = dto.Description,
             IsCompleted = dto.IsCompleted
         };
-        return await _repository.UpdateAsync(item);
+        var updated = await _repository.UpdateAsync(item);
+        return updated is null ? null : ToDto(updated);
     }
 
     public Task<bool> DeleteAsync(Guid id)
         => _repository.DeleteAsync(id);
+
+    private static TodoResponseDto ToDto(TodoItem item) => new()
+    {
+        Id = item.Id,
+        Title = item.Title,
+        Description = item.Description,
+        IsCompleted = item.IsCompleted,
+        CreatedAt = item.CreatedAt
+    };
 }

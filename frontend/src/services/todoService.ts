@@ -3,15 +3,16 @@ import type { TodoItem, CreateTodoDto, UpdateTodoDto } from '../types/todo';
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5214';
 const ENDPOINT = `${BASE_URL}/api/todos`;
 
+const USER_FACING_ERRORS: Record<number, string> = {
+  400: 'Geçersiz istek. Lütfen girdiğiniz bilgileri kontrol edin.',
+  404: 'İstenen kaynak bulunamadı.',
+  500: 'Sunucu hatası. Lütfen daha sonra tekrar deneyin.',
+};
+
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
-    let message = `Sunucu hatası: ${res.status} ${res.statusText}`;
-    try {
-      const body = await res.text();
-      if (body) message = body;
-    } catch {
-      // ignore parse errors
-    }
+    const message = USER_FACING_ERRORS[res.status]
+      ?? `Beklenmeyen bir hata oluştu (${res.status}).`;
     throw new Error(message);
   }
   if (res.status === 204) return undefined as T;

@@ -25,9 +25,6 @@ public class TodoController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateTodoDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.Title))
-            return BadRequest("Title is required.");
-
         var item = await _service.CreateAsync(dto);
         return CreatedAtAction(nameof(GetAll), new { id = item.Id }, item);
     }
@@ -35,12 +32,8 @@ public class TodoController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateTodoDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.Title))
-            return BadRequest("Title is required.");
-
         var updated = await _service.UpdateAsync(id, dto);
         if (updated is null) return NotFound();
-
         return Ok(updated);
     }
 
@@ -49,7 +42,6 @@ public class TodoController : ControllerBase
     {
         var deleted = await _service.DeleteAsync(id);
         if (!deleted) return NotFound();
-
         return NoContent();
     }
 }
