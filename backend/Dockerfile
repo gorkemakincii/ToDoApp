@@ -13,10 +13,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
 COPY --from=build /app/publish .
-COPY startup.sh .
-RUN chmod +x startup.sh
 
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 EXPOSE 8080
-ENTRYPOINT ["./startup.sh"]
+
+# Use shell form so $PORT (injected by Render) is expanded at runtime.
+CMD dotnet backend.dll --urls "http://0.0.0.0:${PORT:-8080}"
